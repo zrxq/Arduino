@@ -23,7 +23,7 @@ Adafruit_MAX31865 thermo = Adafruit_MAX31865(12, 13, 14, 15);
 #define RELAY_PIN D1
 
 #define UPDATE_FREQUENCY      120000
-#define WIFI_RECONNECT_DELAY  500
+#define WIFI_STATUS_POLL_DELAY  500
 
 #define DEBUG_ESP_WIFI
 #define DEBUG_ESP_PORT
@@ -47,7 +47,7 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    delay(WIFI_RECONNECT_DELAY);
+    delay(WIFI_STATUS_POLL_DELAY);
   } 
   Serial.println("OK");
 
