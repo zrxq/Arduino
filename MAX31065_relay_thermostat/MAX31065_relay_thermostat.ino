@@ -22,7 +22,7 @@ Adafruit_MAX31865 thermo = Adafruit_MAX31865(12, 13, 14, 15);
 
 #define RELAY_PIN D1
 
-#define UPDATE_FREQUENCY      15000
+#define UPDATE_FREQUENCY      120000
 #define WIFI_RECONNECT_DELAY  500
 
 #define DEBUG_ESP_WIFI
