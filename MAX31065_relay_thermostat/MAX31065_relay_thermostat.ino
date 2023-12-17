@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <Adafruit_MAX31865.h>
 #include <ThingSpeak.h>
+#include <WebSerial.h>
 
 /*
   Credentials.h should contains the following constants:
@@ -13,6 +14,7 @@
 #include "Credentials.h"
 
 Adafruit_MAX31865 thermo = Adafruit_MAX31865(12, 13, 14, 15);
+AsyncWebServer server(80);
 
 #define RREF      430.0
 #define RNOMINAL  100.0
@@ -22,7 +24,7 @@ Adafruit_MAX31865 thermo = Adafruit_MAX31865(12, 13, 14, 15);
 
 #define RELAY_PIN D1
 
-#define UPDATE_FREQUENCY      120000
+#define UPDATE_LOOP_DELAY       120000
 #define WIFI_STATUS_POLL_DELAY  500
 
 #define DEBUG_ESP_WIFI
@@ -55,6 +57,14 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   WiFi.hostname("MAX31065-Thermorelay");
+
+  WebSerial.begin(&server);
+  server.begin();
+}
+
+void wsPrintln(String str) {
+  Serial.println(str);
+  WebSerial.println(str);
 }
 
 void loop() {
@@ -64,22 +74,24 @@ void loop() {
   int httpStatus = ThingSpeak.writeField(THINGSPEAK_CHANNEL_ID, 1, t, THINGSPEAK_API_KEY);
 
   if (httpStatus != 200) {
-    Serial.println("ThingSpeak t° HTTP error: " + String(httpStatus));
+    wsPrintln("ThingSpeak t° HTTP error: " + String(httpStatus));
   }
   
   if (t <= MIN_TEMP) {
   
     digitalWrite(RELAY_PIN, LOW);   // Relay ON
     digitalWrite(LED_BUILTIN, LOW); // LED ON
+    wsPrintln("Relay ON");
 
   } else if(t > MAX_TEMP) {
   
     digitalWrite(RELAY_PIN, HIGH);    // Relay OFF
     digitalWrite(LED_BUILTIN, HIGH);  // LED OFF
+    wsPrintln("Relay OFF");
   }
 
-  Serial.print("t°: "); 
-  Serial.println(t);
+  wsPrintln("t°: " + String(t));
   
-  delay(UPDATE_FREQUENCY);
+  delay(UPDATE_LOOP_DELAY);
+
 }
